@@ -1,7 +1,6 @@
 package main
 
 import (
-	"SQLResultExport/service"
 	"SQLResultExport/service/impl"
 	"database/sql"
 	"flag"
@@ -12,23 +11,13 @@ import (
 	"reflect"
 )
 
-const (
-	ExportTypeExcel     = "excel"
-	ExportTypeCSV       = "csv"
-	ExportTypeHtml      = "html"
-	ExportTypeJson      = "json"
-	ExportTypeXml       = "xml"
-	ExportTypeSQLInsert = "sql_insert"
-	ExportTypeMarkdown  = "md"
-)
-
 func init() {
 	viper.SetConfigFile("./conf/conf.yaml")
 	viper.SetConfigType("yaml")
 }
 
 var db *sqlx.DB
-var exportType = flag.String("t", ExportTypeExcel, "-t="+ExportTypeExcel)
+var exportType = flag.String("t", exportTypeExcel, "-t="+exportTypeExcel)
 var query = flag.String("q", "", "-q=select * from table")
 
 func main() {
@@ -84,30 +73,37 @@ func main() {
 		res = append(res, row)
 	}
 
-	var exportService service.ExportService
-	switch *exportType {
-	case ExportTypeExcel:
-		exportService = new(impl.ExportExcelService)
-		break
-	case ExportTypeCSV:
-		exportService = new(impl.ExportCsvService)
-		break
-	case ExportTypeHtml:
-		exportService = new(impl.ExportHtmlService)
-		break
-	case ExportTypeJson:
-		exportService = new(impl.ExportJsonService)
-		break
-	case ExportTypeXml:
-		exportService = new(impl.ExportXmlService)
-		break
-	case ExportTypeSQLInsert:
-		exportService = new(impl.ExportSQLInsertService)
-		break
-	case ExportTypeMarkdown:
-		exportService = new(impl.ExportMarkdownService)
-		break
-	}
+	fileName := invokeService(*exportType, res)
+	fmt.Printf("Export File : %s\n", fileName)
+}
 
-	fmt.Println(reflect.TypeOf(exportService))
+const (
+	exportTypeExcel     = "excel"
+	exportTypeCSV       = "csv"
+	exportTypeHtml      = "html"
+	exportTypeJson      = "json"
+	exportTypeXml       = "xml"
+	exportTypeSQLInsert = "sql_insert"
+)
+
+func invokeService(exportType string, res []map[string]string) string {
+	serviceMap := make(map[string]reflect.Type, 7)
+	serviceMap[exportTypeExcel] = reflect.TypeOf(impl.ExportExcelService{})
+	serviceMap[exportTypeCSV] = reflect.TypeOf(impl.ExportCsvService{})
+	serviceMap[exportTypeHtml] = reflect.TypeOf(impl.ExportHtmlService{})
+	serviceMap[exportTypeJson] = reflect.TypeOf(impl.ExportJsonService{})
+	serviceMap[exportTypeXml] = reflect.TypeOf(impl.ExportXmlService{})
+	serviceMap[exportTypeSQLInsert] = reflect.TypeOf(impl.ExportSQLInsertService{})
+
+	var t = serviceMap[exportType]
+	obj := reflect.New(t)
+	method := obj.MethodByName("Export")
+	args := []reflect.Value{reflect.ValueOf(res)}
+	rets := method.Call(args)
+	fileName := rets[0].String()
+	tt := rets[1].Interface()
+	if tt != nil {
+		panic(tt.(error))
+	}
+	return fileName
 }

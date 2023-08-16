@@ -1,25 +1,39 @@
 package impl
 
 import (
-	"SQLResultExport/service"
+	"fmt"
 	"github.com/xuri/excelize/v2"
+	"strconv"
 )
 
 type ExportExcelService struct {
 }
 
-func (service *ExportExcelService) Export(ds service.DataSource) (service.FileName, error) {
+func (service *ExportExcelService) Export(ds []map[string]string) (string, error) {
 	file := excelize.NewFile()
-	sheet, err := file.NewSheet("Sheet")
+	sheetName := "Sheet"
+	sheet, err := file.NewSheet(sheetName)
 	if err != nil {
 		return "", err
 	}
 
+	cellNum := 1
+	for _, row := range ds {
+		cellIdx := 65 // 'A'
+		for _, value := range row {
+			cell := string(rune(cellIdx)) + strconv.Itoa(cellNum)
+			_ = file.SetCellValue(sheetName, cell, value)
+			cellIdx++
+		}
+		cellNum++
+	}
+
 	file.SetActiveSheet(sheet)
-	fileName := "Book1.xlsx"
+	fileName := "Export.xlsx"
 	err = file.SaveAs(fileName)
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
-	return "", nil
+	return fileName, nil
 }
