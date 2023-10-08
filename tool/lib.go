@@ -1,6 +1,7 @@
 package tool
 
 import (
+	. "SQLResultExport/service"
 	"container/list"
 	"fmt"
 	"os"
@@ -21,9 +22,9 @@ func WriteFile(fileName string, content string) error {
 	return nil
 }
 
-func ToCSVRecords(ds []map[string]string) [][]string {
+func ToCSVRecords(rs ResultSet) [][]string {
 	var records [][]string
-	for _, row := range ds {
+	for _, row := range rs {
 		var record []string
 		for _, value := range row {
 			record = append(record, value)

@@ -1,15 +1,16 @@
 package impl
 
 import (
-	"fmt"
+	. "SQLResultExport/service"
 	"github.com/xuri/excelize/v2"
+	"path/filepath"
 	"strconv"
 )
 
 type ExportExcelService struct {
 }
 
-func (service *ExportExcelService) Export(ds []map[string]string) (string, error) {
+func (service *ExportExcelService) Export(rs ResultSet) (File, error) {
 	file := excelize.NewFile()
 	sheetName := "Sheet"
 	sheet, err := file.NewSheet(sheetName)
@@ -18,7 +19,7 @@ func (service *ExportExcelService) Export(ds []map[string]string) (string, error
 	}
 
 	cellNum := 1
-	for _, row := range ds {
+	for _, row := range rs {
 		cellIdx := 65 // 'A'
 		for _, value := range row {
 			cell := string(rune(cellIdx)) + strconv.Itoa(cellNum)
@@ -32,8 +33,9 @@ func (service *ExportExcelService) Export(ds []map[string]string) (string, error
 	fileName := "Export.xlsx"
 	err = file.SaveAs(fileName)
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
-	return fileName, nil
+
+	output, _ := filepath.Abs(fileName)
+	return File(output), nil
 }

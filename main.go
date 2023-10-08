@@ -45,12 +45,18 @@ func main() {
 	db, _ = sqlx.Connect(dbType, ds)
 	db.SetMaxOpenConns(5)
 	db.SetMaxIdleConns(1)
-	_ = db.Ping()
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
 	defer func(db *sqlx.DB) {
 		_ = db.Close()
 	}(db)
 
-	rows, _ := db.Query(*query)
+	rows, err := db.Query(*query)
+	if err != nil {
+		panic(err)
+	}
 	defer func(rows *sql.Rows) {
 		_ = rows.Close()
 	}(rows)

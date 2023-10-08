@@ -6,10 +6,10 @@ import (
 )
 
 func TestExportHtmlService_Export(t *testing.T) {
-	ds := GetTestDS()
+	rs := GetTestRS()
 
 	exportService := new(impl.ExportHtmlService)
-	fileName, err := exportService.Export(ds)
+	fileName, err := exportService.Export(rs)
 	if err != nil {
 		return
 	}

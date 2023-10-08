@@ -1,7 +1,7 @@
 db:
   type: mysql
-  host: 139.196.240.2
-  name: hys_sit
-  port: 3306
+  host: 127.0.0.1
+  name: test
+  port: 3310
   user: root
-  pass: mysql@hao1shu!#!$@dev
+  pass: 123456

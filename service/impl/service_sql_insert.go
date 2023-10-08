@@ -1,20 +1,22 @@
 package impl
 
 import (
+	. "SQLResultExport/service"
 	"SQLResultExport/tool"
 	"container/list"
 	"fmt"
+	"path/filepath"
 	"strings"
 )
 
 type ExportSQLInsertService struct {
 }
 
-func (service *ExportSQLInsertService) Export(ds []map[string]string) (string, error) {
+func (service *ExportSQLInsertService) Export(rs ResultSet) (File, error) {
 	const tableName = "MY_TABLE"
 
 	var content []string
-	for _, row := range ds {
+	for _, row := range rs {
 		fields := list.New()
 		values := list.New()
 		for key, value := range row {
@@ -33,5 +35,7 @@ func (service *ExportSQLInsertService) Export(ds []map[string]string) (string, e
 	if err != nil {
 		return "", err
 	}
-	return fileName, nil
+
+	output, _ := filepath.Abs(fileName)
+	return File(output), nil
 }

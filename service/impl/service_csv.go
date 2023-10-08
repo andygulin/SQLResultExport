@@ -1,15 +1,17 @@
 package impl
 
 import (
+	. "SQLResultExport/service"
 	"SQLResultExport/tool"
 	"encoding/csv"
 	"os"
+	"path/filepath"
 )
 
 type ExportCsvService struct {
 }
 
-func (service *ExportCsvService) Export(ds []map[string]string) (string, error) {
+func (service *ExportCsvService) Export(rs ResultSet) (File, error) {
 	var fileName = "Export.csv"
 	file, err := os.Create(fileName)
 	defer func(file *os.File) {
@@ -20,11 +22,12 @@ func (service *ExportCsvService) Export(ds []map[string]string) (string, error) 
 	}
 
 	writer := csv.NewWriter(file)
-	err = writer.WriteAll(tool.ToCSVRecords(ds))
+	err = writer.WriteAll(tool.ToCSVRecords(rs))
 	if err != nil {
 		return "", err
 	}
 	writer.Flush()
 
-	return fileName, nil
+	output, _ := filepath.Abs(fileName)
+	return File(output), nil
 }

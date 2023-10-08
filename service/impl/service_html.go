@@ -1,15 +1,17 @@
 package impl
 
 import (
+	. "SQLResultExport/service"
 	"SQLResultExport/tool"
 	"bytes"
+	"path/filepath"
 	"text/template"
 )
 
 type ExportHtmlService struct {
 }
 
-func (service *ExportHtmlService) Export(ds []map[string]string) (string, error) {
+func (service *ExportHtmlService) Export(rs ResultSet) (File, error) {
 	tmpl := `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +20,7 @@ func (service *ExportHtmlService) Export(ds []map[string]string) (string, error)
 </head>
 <body>
 <table border="1" style="border-collapse:collapse">
-{{range $_, $row := .ds}}
+{{range $_, $row := .rs}}
 <tr>
 {{range $key, $value := $row}}
   <td>{{$value}}</td>
@@ -36,7 +38,7 @@ func (service *ExportHtmlService) Export(ds []map[string]string) (string, error)
 
 	buf := new(bytes.Buffer)
 	data := make(map[string]any)
-	data["ds"] = ds
+	data["rs"] = rs
 	err = t.Execute(buf, data)
 	if err != nil {
 		return "", err
@@ -47,5 +49,7 @@ func (service *ExportHtmlService) Export(ds []map[string]string) (string, error)
 	if err != nil {
 		return "", err
 	}
-	return fileName, nil
+
+	output, _ := filepath.Abs(fileName)
+	return File(output), nil
 }

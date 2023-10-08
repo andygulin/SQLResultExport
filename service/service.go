@@ -1,5 +1,8 @@
 package service
 
+type ResultSet []map[string]string
+type File string
+
 type ExportService interface {
-	Export(ds []map[string]string) (string, error)
+	Export(rs ResultSet) (File, error)
 }

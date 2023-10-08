@@ -1,20 +1,22 @@
 package impl
 
 import (
+	. "SQLResultExport/service"
 	"SQLResultExport/tool"
 	"bytes"
 	"github.com/beevik/etree"
+	"path/filepath"
 )
 
 type ExportXmlService struct {
 }
 
-func (service *ExportXmlService) Export(ds []map[string]string) (string, error) {
+func (service *ExportXmlService) Export(rs ResultSet) (File, error) {
 	doc := etree.NewDocument()
 	doc.CreateProcInst("xml", `version="1.0" encoding="UTF-8"`)
 
 	data := doc.CreateElement("data")
-	for _, row := range ds {
+	for _, row := range rs {
 		rows := data.CreateElement("rows")
 		for key, value := range row {
 			rows.CreateElement(key).CreateText(value)
@@ -29,5 +31,7 @@ func (service *ExportXmlService) Export(ds []map[string]string) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	return fileName, nil
+
+	output, _ := filepath.Abs(fileName)
+	return File(output), nil
 }
