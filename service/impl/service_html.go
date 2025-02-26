@@ -31,6 +31,7 @@ func (service *ExportHtmlService) Export(rs ResultSet) (File, error) {
 </body>
 </html>`
 
+	rss := SortMaps(rs)
 	t, err := template.New("html").Parse(tmpl)
 	if err != nil {
 		panic(err)
@@ -38,7 +39,7 @@ func (service *ExportHtmlService) Export(rs ResultSet) (File, error) {
 
 	buf := new(bytes.Buffer)
 	data := make(map[string]any)
-	data["rs"] = rs
+	data["rs"] = rss
 	err = t.Execute(buf, data)
 	if err != nil {
 		return "", err

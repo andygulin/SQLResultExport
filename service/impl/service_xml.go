@@ -12,12 +12,14 @@ type ExportXmlService struct {
 }
 
 func (service *ExportXmlService) Export(rs ResultSet) (File, error) {
+	rss := SortMaps(rs)
+
 	doc := etree.NewDocument()
 	doc.CreateProcInst("xml", `version="1.0" encoding="UTF-8"`)
 
 	data := doc.CreateElement("data")
-	for _, row := range rs {
-		rows := data.CreateElement("rows")
+	for _, row := range rss {
+		rows := data.CreateElement("row")
 		for key, value := range row {
 			rows.CreateElement(key).CreateText(value)
 		}

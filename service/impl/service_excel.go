@@ -11,6 +11,8 @@ type ExportExcelService struct {
 }
 
 func (service *ExportExcelService) Export(rs ResultSet) (File, error) {
+	rss := ToKeyValue(rs)
+
 	file := excelize.NewFile()
 	sheetName := "Sheet"
 	sheet, err := file.NewSheet(sheetName)
@@ -19,11 +21,11 @@ func (service *ExportExcelService) Export(rs ResultSet) (File, error) {
 	}
 
 	cellNum := 1
-	for _, row := range rs {
+	for _, row := range rss {
 		cellIdx := 65 // 'A'
-		for _, value := range row {
+		for _, kv := range row {
 			cell := string(rune(cellIdx)) + strconv.Itoa(cellNum)
-			_ = file.SetCellValue(sheetName, cell, value)
+			_ = file.SetCellValue(sheetName, cell, kv.Value)
 			cellIdx++
 		}
 		cellNum++

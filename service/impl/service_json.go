@@ -11,7 +11,8 @@ type ExportJsonService struct {
 }
 
 func (service *ExportJsonService) Export(rs ResultSet) (File, error) {
-	b, _ := json.MarshalIndent(rs, "", "	")
+	rss := SortMaps(rs)
+	b, _ := json.MarshalIndent(rss, "", "	")
 
 	var fileName = "Export.json"
 	err := tool.WriteFile(fileName, string(b))

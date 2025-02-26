@@ -13,15 +13,17 @@ type ExportSQLInsertService struct {
 }
 
 func (service *ExportSQLInsertService) Export(rs ResultSet) (File, error) {
+	kvs := ToKeyValue(rs)
+
 	const tableName = "MY_TABLE"
 
 	var content []string
-	for _, row := range rs {
+	for _, row := range kvs {
 		fields := list.New()
 		values := list.New()
-		for key, value := range row {
-			fields.PushBack("`" + key + "`")
-			values.PushBack("'" + value + "'")
+		for _, kv := range row {
+			fields.PushBack("`" + kv.Key + "`")
+			values.PushBack("'" + kv.Value + "'")
 		}
 		fieldStr := strings.Join(tool.ListToArray(fields), ",")
 		valueStr := strings.Join(tool.ListToArray(values), ",")

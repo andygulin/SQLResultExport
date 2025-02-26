@@ -1,10 +1,11 @@
 package tool
 
 import (
-	. "SQLResultExport/service"
+	"SQLResultExport/service"
 	"container/list"
 	"fmt"
 	"os"
+	"sort"
 )
 
 func WriteFile(fileName string, content string) error {
@@ -22,16 +23,31 @@ func WriteFile(fileName string, content string) error {
 	return nil
 }
 
-func ToCSVRecords(rs ResultSet) [][]string {
-	var records [][]string
-	for _, row := range rs {
-		var record []string
-		for _, value := range row {
-			record = append(record, value)
+func ToCSVRecords(rs service.ResultSet) [][]string {
+	allKeys := make(map[string]struct{})
+	for _, m := range rs {
+		for key := range m {
+			allKeys[key] = struct{}{}
 		}
-		records = append(records, record)
 	}
-	return records
+	sortedKeys := make([]string, 0, len(allKeys))
+	for key := range allKeys {
+		sortedKeys = append(sortedKeys, key)
+	}
+	sort.Strings(sortedKeys)
+
+	result := make([][]string, 0, len(rs)+1)
+	result = append(result, sortedKeys)
+
+	for _, m := range rs {
+		row := make([]string, len(sortedKeys))
+		for i, key := range sortedKeys {
+			row[i] = m[key]
+		}
+		result = append(result, row)
+	}
+
+	return result
 }
 
 func ListToArray(list *list.List) []string {
